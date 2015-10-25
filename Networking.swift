@@ -58,7 +58,7 @@ class Web {
         bodyString += hh + boundary + rn
         bodyString += contentDisposition("file") + "; filename=\"p.jpg\"" + rn
         bodyString += "Content-Type: image/jpeg" + rn + rn
-        var body = NSMutableData(data: bodyString.dataUsingEncoding(NSUTF8StringEncoding)!)
+        let body = NSMutableData(data: bodyString.dataUsingEncoding(NSUTF8StringEncoding)!)
         body.appendData(data)
 
         // Complete
@@ -75,13 +75,13 @@ class Web {
         for (name, value) in fields {
             bodyString.append("\(name)=\(value)")
         }
-        return join("&", bodyString).dataUsingEncoding(NSUTF8StringEncoding)
+        return bodyString.joinWithSeparator("&").dataUsingEncoding(NSUTF8StringEncoding)
     }
 
     private class func randomStringWithLength(length: Int) -> String {
         let alphabet = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         return String((0..<length).map { _ -> Character in
-            return alphabet[advance(alphabet.startIndex, Int(arc4random_uniform(64)))]
+            return alphabet[alphabet.startIndex.advancedBy(Int(arc4random_uniform(64)))]
         })
     }
 }
