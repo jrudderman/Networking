@@ -18,7 +18,7 @@ A simple iOS networking library written in Swift
 
     To make a form POST request:
 
-        let fields = ["name": "Matt", "phone": "2102390602"]
+        let fields = ["name": "Matt", "email": "matt@example.com"]
         var request = api.formRequest("POST", "/users", fields)
 
     Then, to send either of the requests above, use `NSURLSession`:
@@ -31,7 +31,7 @@ A simple iOS networking library written in Swift
 
         let boundary = Web.multipartBoundary()
         let request = Web.multipartRequest("POST", "/users", boundary)
-        let fields = ["name": "Matt", "phone": "2102390602"]
+        let fields = ["name": "Matt", "email": "matt@example.com"]
         let data = api.multipartData(boundary, fields, UIImageJPEGRepresentation(UIImage(named: "Matt"), 0.9))
         let dataTask = NSURLSession.sharedSession().uploadTaskWithRequest(request, fromData: data, completionHandler: { (data, response, error) in
             // Handle response

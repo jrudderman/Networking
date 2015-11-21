@@ -71,11 +71,11 @@ class Web {
     // Convert ["name1": "value1", "name2": "value2"] to "name1=value1&name2=value2".
     // NOTE: Like curl, let front-end developers URL encode names & values.
     private class func formHTTPBodyFromFields(fields: Dictionary<String, String>) -> NSData? {
-        var bodyString = [String]()
+        var bodyArray = [String]()
         for (name, value) in fields {
-            bodyString.append("\(name)=\(value)")
+            bodyArray.append("\(name)=\(value)")
         }
-        return bodyString.joinWithSeparator("&").dataUsingEncoding(NSUTF8StringEncoding)
+        return bodyArray.joinWithSeparator("&").dataUsingEncoding(NSUTF8StringEncoding)
     }
 
     private class func randomStringWithLength(length: Int) -> String {
@@ -96,10 +96,11 @@ extension String {
     }
 }
 
-extension UIAlertView {
-    convenience init(dictionary: Dictionary<String, String>?, error: NSError!, delegate: AnyObject?) {
+extension UIAlertController {
+    convenience init(dictionary: Dictionary<String, String>?, error: NSError!, handler: ((UIAlertAction) -> Void)?) {
         let title = dictionary?["title"] ?? ""
         let message = dictionary?["message"] ?? (error != nil ? error.localizedDescription : "Could not connect to server.")
-        self.init(title: title, message: message, delegate: delegate, cancelButtonTitle: "OK")
+        self.init(title: title, message: message, preferredStyle: .Alert)
+        self.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: handler))
     }
 }
