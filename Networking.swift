@@ -19,8 +19,13 @@ struct API {
     }
 
     static func dataTaskWithRequest(request: NSURLRequest, _ completionHandler: (AnyObject?, Int?, NSError?) -> Void) -> NSURLSessionDataTask {
-        return NSURLSession.sharedSession().dataTaskWithRequest(request) { (data, response, error) in
-            let JSONObject: AnyObject? = data != nil ? try? NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions(rawValue: 0)) : nil
+        return NSURLSession.sharedSession().dataTaskWithRequest(request) { data, response, error in
+            let JSONObject: AnyObject?
+            if let data = data {
+                JSONObject = try? NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions(rawValue: 0))
+            } else {
+                JSONObject = nil
+            }
             let statusCode = (response as! NSHTTPURLResponse?)?.statusCode
             completionHandler(JSONObject, statusCode, error)
         }
@@ -36,17 +41,17 @@ struct Net {
         let request = NSMutableURLRequest(URL: URL)
         request.HTTPMethod = HTTPMethod
 
-        if JPEGData == nil {
-            if fields != nil {
+        guard let JPEGData = JPEGData else {
+            if let fields = fields {
                 request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-                request.HTTPBody = formHTTPBodyFromFields(fields!)
+                request.HTTPBody = formHTTPBodyFromFields(fields)
             }
-        } else {
-            let boundary = multipartBoundary()
-            request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-            request.HTTPBody = multipartBodyData(boundary, fields, JPEGData!)
+            return request
         }
 
+        let boundary = multipartBoundary()
+        request.addValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.HTTPBody = multipartBodyData(boundary, fields, JPEGData)
         return request
     }
 
@@ -73,8 +78,8 @@ struct Net {
         }
 
         // Add fields
-        if fields != nil {
-            for (name, value) in fields! {
+        if let fields = fields {
+            for (name, value) in fields {
                 bodyString += hh + boundary + rn
                 bodyString += contentDisposition(name) + rn + rn
                 bodyString += value + rn
@@ -122,8 +127,15 @@ extension UIViewController {
 
 extension UIAlertController {
     convenience init(dictionary: Dictionary<String, String>?, error: NSError?, handler: ((UIAlertAction) -> Void)?) {
+        func defaultMessage(error: NSError?) -> String {
+            guard let error = error else {
+                return "Could not connect to server."
+            }
+            return error.localizedDescription
+        }
+
         let title = dictionary?["title"] ?? ""
-        let message = dictionary?["message"] ?? (error != nil ? error!.localizedDescription : "Could not connect to server.")
+        let message = dictionary?["message"] ?? defaultMessage(error)
         self.init(title: title, message: message, preferredStyle: .Alert)
         self.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: handler))
     }

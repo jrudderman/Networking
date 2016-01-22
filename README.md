@@ -31,13 +31,13 @@ iOS networking library written in Swift
 
     Then, to send any of the requests above, use `NSURLSession`:
 
-        let dataTask = NSURLSession.sharedSession().dataTaskWithRequest(request) { (data, response, error) in
+        let dataTask = NSURLSession.sharedSession().dataTaskWithRequest(request) { data, response, error in
             // Handle response
         }
 
     Or, for help parsing a JSON response, use `API`:
 
-        let dataTask = API.dataTaskWithRequest(request) { (JSONObject, statusCode, error) in
+        let dataTask = API.dataTaskWithRequest(request) { JSONObject, statusCode, error in
             // Handle response
         }
 
@@ -46,7 +46,7 @@ iOS networking library written in Swift
         let fields = ["name": "Matt", "email": "matt@example.com"]
         let JPEGData = UIImageJPEGRepresentation(UIImage(named: "Matt"), 0.9)
         let request = api.request("POST", "/users", fields, JPEGData)
-        let dataTask = NSURLSession.sharedSession().uploadTaskWithRequest(request, fromData: request.HTTPBody!) { (data, response, error) in
+        let dataTask = NSURLSession.sharedSession().uploadTaskWithRequest(request, fromData: request.HTTPBody!) { data, response, error in
             // Handle response
         }
 
