@@ -20,12 +20,7 @@ struct API {
 
     static func dataTaskWithRequest(request: NSURLRequest, _ completionHandler: (AnyObject?, Int?, NSError?) -> Void) -> NSURLSessionDataTask {
         return NSURLSession.sharedSession().dataTaskWithRequest(request) { data, response, error in
-            let JSONObject: AnyObject?
-            if let data = data {
-                JSONObject = try? NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions(rawValue: 0))
-            } else {
-                JSONObject = nil
-            }
+            let JSONObject = data != nil ? try? NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions(rawValue: 0)) : nil
             let statusCode = (response as! NSHTTPURLResponse?)?.statusCode
             completionHandler(JSONObject, statusCode, error)
         }
@@ -119,24 +114,31 @@ extension String {
 }
 
 extension UIViewController {
+    func alert(title title: String?, message: String?) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
+        presentViewController(alert, animated: true, completion: nil)
+    }
+
     func alertError(dictionary: Dictionary<String, String>?, error: NSError?, handler: ((UIAlertAction) -> Void)?) {
         let alert = UIAlertController(dictionary: dictionary, error: error, handler: handler)
+        presentViewController(alert, animated: true, completion: nil)
+    }
+
+    func confirm(title title: String?, message: String?, handler: (UIAlertAction) -> Void) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
+        alert.addAction(UIAlertAction(title: "No", style: .Cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "Yes", style: .Default, handler: handler))
         presentViewController(alert, animated: true, completion: nil)
     }
 }
 
 extension UIAlertController {
     convenience init(dictionary: Dictionary<String, String>?, error: NSError?, handler: ((UIAlertAction) -> Void)?) {
-        func defaultMessage(error: NSError?) -> String {
-            guard let error = error else {
-                return "Could not connect to server."
-            }
-            return error.localizedDescription
-        }
-
+        let errorMessage = error?.localizedDescription ?? "Could not connect to server."
         let title = dictionary?["title"] ?? ""
-        let message = dictionary?["message"] ?? defaultMessage(error)
+        let message = dictionary?["message"] ?? errorMessage
         self.init(title: title, message: message, preferredStyle: .Alert)
-        self.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: handler))
+        addAction(UIAlertAction(title: "OK", style: .Cancel, handler: handler))
     }
 }
