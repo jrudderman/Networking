@@ -114,9 +114,9 @@ extension String {
 }
 
 extension UIViewController {
-    func alert(title title: String?, message: String?) {
+    func alert(title title: String?, message: String?, handler: ((UIAlertAction) -> Void)? = nil) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .Alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: nil))
+        alert.addAction(UIAlertAction(title: "OK", style: .Cancel, handler: handler))
         presentViewController(alert, animated: true, completion: nil)
     }
 
